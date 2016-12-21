@@ -378,7 +378,7 @@ class DefaultApi
     }
 
     /**
-     * Operation seacrhDocuments
+     * Operation searchDocuments
      *
      * Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
      *
@@ -386,14 +386,14 @@ class DefaultApi
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return \Swagger\Client\Model\ProtocolNumber[]
      */
-    public function seacrhDocuments($body = null)
+    public function searchDocuments($body = null)
     {
-        list($response) = $this->seacrhDocumentsWithHttpInfo($body);
+        list($response) = $this->searchDocumentsWithHttpInfo($body);
         return $response;
     }
 
     /**
-     * Operation seacrhDocumentsWithHttpInfo
+     * Operation searchDocumentsWithHttpInfo
      *
      * Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
      *
@@ -401,7 +401,7 @@ class DefaultApi
      * @throws \Swagger\Client\ApiException on non-2xx response
      * @return array of \Swagger\Client\Model\ProtocolNumber[], HTTP status code, HTTP response headers (array of strings)
      */
-    public function seacrhDocumentsWithHttpInfo($body = null)
+    public function searchDocumentsWithHttpInfo($body = null)
     {
         // parse inputs
         $resourcePath = "/search/documents";

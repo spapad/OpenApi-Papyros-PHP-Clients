@@ -123,12 +123,12 @@ class DefaultApiTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test case for seacrhDocuments
+     * Test case for searchDocuments
      *
      * Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης.
      *
      */
-    public function testSeacrhDocuments()
+    public function testsearchDocuments()
     {
 
     }

@@ -5,8 +5,8 @@ $api_instance = new Swagger\Client\Api\DefaultApi();
 $body = new \Swagger\Client\Model\SearchModel(); // \Swagger\Client\Model\SearchModel | 
 
 try {
-    $result = $api_instance->seacrhDocuments($body);
+    $result = $api_instance->searchDocuments($body);
     print_r($result);
 } catch (Exception $e) {
-    echo 'Exception when calling DefaultApi->seacrhDocuments: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling DefaultApi->searchDocuments: ', $e->getMessage(), PHP_EOL;
 }

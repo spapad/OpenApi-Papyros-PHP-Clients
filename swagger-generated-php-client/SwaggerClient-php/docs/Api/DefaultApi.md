@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**getDocData**](DefaultApi.md#getDocData) | **GET** /document/data/{docId} | Επιστροφή των δεδομένων με τα οποία έχει αρχειοθετηθεί ένα έγγραφο
 [**getPdf**](DefaultApi.md#getPdf) | **GET** /document/pdf/{docId} | Επιστρέφει το έγγραφο που έχει ζητηθεί με το Id του σε μορφή Base64 encoded String
 [**pauth**](DefaultApi.md#pauth) | **PUT** /pauthenticate/pauth | Αυθεντικοποίηση του χρήστη και επιστροφή ενός Api Key με το οποίο ο χρήστης μπορεί να προχωρήσει στις υπηρεσιες του Api θέτοτας το κλειδί σαν Header του Api ώς \&quot;Api_Key\&quot;
-[**seacrhDocuments**](DefaultApi.md#seacrhDocuments) | **POST** /search/documents | Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
+[**searchDocuments**](DefaultApi.md#searchDocuments) | **POST** /search/documents | Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
 
 
 # **getDocData**
@@ -145,8 +145,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../../README.md#documentation-for-api-endpoints) [[Back to Model list]](../../README.md#documentation-for-models) [[Back to README]](../../README.md)
 
-# **seacrhDocuments**
-> \Swagger\Client\Model\ProtocolNumber[] seacrhDocuments($body)
+# **searchDocuments**
+> \Swagger\Client\Model\ProtocolNumber[] searchDocuments($body)
 
 Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
 
@@ -161,10 +161,10 @@ $api_instance = new Swagger\Client\Api\DefaultApi();
 $body = new \Swagger\Client\Model\SearchModel(); // \Swagger\Client\Model\SearchModel | 
 
 try {
-    $result = $api_instance->seacrhDocuments($body);
+    $result = $api_instance->searchDocuments($body);
     print_r($result);
 } catch (Exception $e) {
-    echo 'Exception when calling DefaultApi->seacrhDocuments: ', $e->getMessage(), PHP_EOL;
+    echo 'Exception when calling DefaultApi->searchDocuments: ', $e->getMessage(), PHP_EOL;
 }
 ?>
 ```

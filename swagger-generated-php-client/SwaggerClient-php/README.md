@@ -78,7 +78,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**getDocData**](docs/Api/DefaultApi.md#getdocdata) | **GET** /document/data/{docId} | Επιστροφή των δεδομένων με τα οποία έχει αρχειοθετηθεί ένα έγγραφο
 *DefaultApi* | [**getPdf**](docs/Api/DefaultApi.md#getpdf) | **GET** /document/pdf/{docId} | Επιστρέφει το έγγραφο που έχει ζητηθεί με το Id του σε μορφή Base64 encoded String
 *DefaultApi* | [**pauth**](docs/Api/DefaultApi.md#pauth) | **PUT** /pauthenticate/pauth | Αυθεντικοποίηση του χρήστη και επιστροφή ενός Api Key με το οποίο ο χρήστης μπορεί να προχωρήσει στις υπηρεσιες του Api θέτοτας το κλειδί σαν Header του Api ώς \&quot;Api_Key\&quot;
-*DefaultApi* | [**seacrhDocuments**](docs/Api/DefaultApi.md#seacrhdocuments) | **POST** /search/documents | Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
+*DefaultApi* | [**searchDocuments**](docs/Api/DefaultApi.md#searchdocuments) | **POST** /search/documents | Επιστροφή ενός Array με στοιχεία τους αριθμούς του πρωτοκόλλου που ανταποκρίνονται στα σοιχεία της αναήτησης
 *IdApi* | [**postProtocol**](docs/Api/IdApi.md#postprotocol) | **POST** /protocol/submit | Στο συγκεκριμένο URI μπορεί να πραγματοποιηθεί κλήση με μοναδικό αντκείμενο όπως περιγράφεται από το μοντέλο. Γνα να δεχτεί ο Server και να καταλάβει το έγγραφο (\&quot;document\&quot;: \&quot;string\&quot;) πρέπει αυτό να βρίσκεται σε Base64 μορφή
 
 
