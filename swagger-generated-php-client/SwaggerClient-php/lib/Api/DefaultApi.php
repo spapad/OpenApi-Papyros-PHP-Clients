@@ -438,11 +438,12 @@ class DefaultApi
                 $queryParams,
                 $httpBody,
                 $headerParams,
-                '\Swagger\Client\Model\ProtocolNumber[]',
+//                '\Swagger\Client\Model\ProtocolNumber[]',
+                'string[]',
                 '/search/documents'
             );
-
-            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\ProtocolNumber[]', $httpHeader), $statusCode, $httpHeader];
+//            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\ProtocolNumber[]', $httpHeader), $statusCode, $httpHeader];
+            return [$this->apiClient->getSerializer()->deserialize($response, 'string[]', $httpHeader), $statusCode, $httpHeader];
         } catch (ApiException $e) {
             switch ($e->getCode()) {
                 case 200:
