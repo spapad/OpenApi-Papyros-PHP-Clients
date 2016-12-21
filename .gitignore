@@ -1,0 +1,11 @@
+swagger-generated-php-client.zip
+swagger.json
+swagger.yaml
+
+.idea
+nbproject
+.buildpath
+.project
+.settings
+Thumbs.db
+
