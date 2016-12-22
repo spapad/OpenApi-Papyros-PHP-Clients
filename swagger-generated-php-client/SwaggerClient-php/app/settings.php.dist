@@ -1,5 +1,8 @@
 <?php
 return [
+    // username and password to authenticate 
     'username' => 'test',
-    'password' => '123456'
+    'password' => '123456',
+    // sender id for test lookups 
+    'senderId' => '100000001'
 ];
