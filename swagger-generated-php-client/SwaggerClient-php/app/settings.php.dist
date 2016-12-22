@@ -1,5 +1,0 @@
-<?php
-return [
-    'username' => 'test',
-    'password' => '123456'
-];
