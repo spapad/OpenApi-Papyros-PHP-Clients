@@ -1,8 +1,8 @@
 <?php
-$autoloader = require_once(__DIR__ . '/../vendor/autoload.php');
+$autoloader = require(__DIR__ . '/swagger-generated-php-client/SwaggerClient-php/vendor/autoload.php');
 
 $autoloader->addPsr4('Gr\\Gov\\Minedu\\Osteam\\', __DIR__ . '/src/');
-$autoloader->addPsr4('Swagger\\Client\\', __DIR__ . '/../lib/');
+$autoloader->addPsr4('Swagger\\Client\\', __DIR__ . '/swagger-generated-php-client/SwaggerClient-php/lib/');
 
 use Gr\Gov\Minedu\Osteam\App;
 use Swagger\Client\Model\DocumentDto;
@@ -11,7 +11,7 @@ use Swagger\Client\Model\Document;
 $settings = require(__DIR__ . '/settings.php');
 
 $app = new App($settings);
-
+$app->setDebug(true);
 
 /**
  * Λήψη παραμέτρων καθορισμού λειτουργίας από τη γραμμή εντολών 

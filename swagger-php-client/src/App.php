@@ -136,8 +136,6 @@ class App
      */
     public function apiResultObjAsArray($resultobj)
     {
-        $class = get_class($resultobj);
-
         $result = [];
         if (method_exists($resultobj, 'getters')) {
             $getters = $resultobj->getters();

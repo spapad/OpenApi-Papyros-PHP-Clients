@@ -442,6 +442,7 @@ class DefaultApi
                 'string[]',
                 '/search/documents'
             );
+            var_export($response);
 //            return [$this->apiClient->getSerializer()->deserialize($response, '\Swagger\Client\Model\ProtocolNumber[]', $httpHeader), $statusCode, $httpHeader];
             return [$this->apiClient->getSerializer()->deserialize($response, 'string[]', $httpHeader), $statusCode, $httpHeader];
         } catch (ApiException $e) {
