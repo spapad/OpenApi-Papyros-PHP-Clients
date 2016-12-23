@@ -34,6 +34,28 @@ class Client
         return $result;
     }
 
+    public function searchDocuments($payload, $apikey)
+    {
+        $result = $this->post("{$this->_settings['base_uri']}/search/documents", $payload, [
+            "api_key: {$apikey}",
+            "Content-Type: application/json",
+            "Accept: application/json",
+            ]
+        );
+        return $result;
+    }
+
+    public function getDocData($hashid, $apikey)
+    {
+        $result = $this->get("{$this->_settings['base_uri']}/document/data/{$hashid}", [], [
+            "api_key: {$apikey}",
+            "Content-Type: text/plain",
+            "Accept: application/json",
+            ]
+        );
+        return $result;
+    }
+
     protected function setCommonCurlOptions($ch, $uri, $headers)
     {
         curl_setopt($ch, CURLOPT_URL, $uri);
@@ -76,17 +98,47 @@ class Client
     {
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $uri);
+        $this->setCommonCurlOptions($ch, $uri, $headers);
+
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         $result = curl_exec($ch);
 
-        echo "Error posting to {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true);
         if (curl_errno($ch)) {
-            throw new Exception("Error posting to {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+        }
+        if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
+            // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
+            throw new Exception("Αποτυχημένη κλήση. HTTP STATUS {$http_code}. Η απάντηση ήταν: {$result}", $http_code);
+        }
+        curl_close($ch);
+        return $result;
+    }
+
+    public function get($uri, $params = [], $headers = [])
+    {
+        $ch = curl_init();
+
+        if (is_array($params) && count($params) > 0) {
+            $qs = '?' . http_build_query($params);
+        } else {
+            $qs = '';
+        }
+        $this->setCommonCurlOptions($ch, "{$uri}{$qs}", $headers);
+
+//        curl_setopt($ch, CURLOPT_HTTPGET, true); // default
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+        }
+        if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
+            // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
+            throw new Exception("Αποτυχημένη κλήση. HTTP STATUS {$http_code}. Η απάντηση ήταν: {$result}", $http_code);
         }
         curl_close($ch);
         return $result;

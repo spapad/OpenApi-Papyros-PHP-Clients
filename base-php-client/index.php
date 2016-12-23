@@ -16,13 +16,13 @@ use Gr\Gov\Minedu\Osteam\App;
 
 $settings = require(__DIR__ . '/settings.php');
 
-$app = new App($settings);
-$app->setDebug(true);
-
 /**
  * Λήψη παραμέτρων καθορισμού λειτουργίας από τη γραμμή εντολών 
+ * v = verbose output
+ * i = incoming file type
+ * o = outgoing file type
  */
-$options = getopt('', ['send:', 'list', 'listshow', 'show:', 'get:', 'save:']);
+$options = getopt('vio', ['send:', 'list', 'listshow', 'show:', 'get:', 'save:']);
 
 $send = isset($options['send']);
 $list = isset($options['list']) || isset($options['listshow']);
@@ -30,14 +30,25 @@ $listdetails = isset($options['listshow']);
 $show = isset($options['show']);
 $get = isset($options['get']) || isset($options['save']);
 $save = isset($options['save']);
+$incoming_only = isset($options['i']);
+$outgoing_only = isset($options['o']);
+
+/**
+ * Αρχικοποίηση εφαρμογής 
+ */
+$app = new App($settings);
+$app->setDebug(isset($options['v']));
 
 /**
  * Έλεγχος παραμέτρων
  */
 if (!$send && !$list && !$show && !$get) {
-    echo "Χρήση: {$argv[0]} [--list] [--listshow] [--send <file>] [--show <hashid>] [--get <hashid>] [--save <hashid>]", PHP_EOL,
-    "         list: λίστα hashids των εγγράφων", PHP_EOL,
-    "     listshow: λίστα αρχείων", PHP_EOL,
+    echo "Χρήση: {$argv[0]} [-v] [--list] [--listshow] [-i|-o] [--send <file>] [--show <hashid>] [--get <hashid>] [--save <hashid>]", PHP_EOL,
+    "            v: παραγωγή μηνυμάτων παρακολούθησης εκτέλεσης", PHP_EOL,
+    "         list: λίστα hashids των εγγράφων (των τελευταίων 5 ημερών)", PHP_EOL,
+    "     listshow: λίστα αρχείων (των τελευταίων 5 ημερών)", PHP_EOL,
+    "            i: να συμπεριληφθούν μόνο τα εισερχόμενα στη λίστα αρχείων", PHP_EOL,
+    "            ο: να συμπεριληφθούν μόνο τα εξερχόμενα στη λίστα αρχείων", PHP_EOL,
     "  send <file>: καταχώρηση πρωτοκόλλου με αποστολή του αρχείου file", PHP_EOL,
     "  show <hash>: αναλυτικές πληροφορίες αρχείου με δεδομένο hashid", PHP_EOL,
     "   get <hash>: λήψη  αρχείου με δεδομένο hashid", PHP_EOL,
@@ -69,6 +80,54 @@ try {
 } catch (\Exception $e) {
     echo 'ΛΑΘΟΣ: Αδυναμία ανάκτησης API key. ', PHP_EOL, $e->getMessage(), PHP_EOL;
     exit(-1);
+}
+
+/**
+ * Λειτουργία λήψης λίστας των καταχωρημένων πρωτοκόλλων.
+ * Εάν έχει ζητηθεί επιστρέφονται και οι αναλυτικές πληροφορίες των εγγράφων. 
+ */
+if ($list) {
+    echo "Ανάκτηση λίστας εγγράφων...", PHP_EOL;
+    try {
+        $now = date(DATE_W3C);
+        $fivedaysbefore = date(DATE_W3C, mktime(0, 0, 0, date("m"), date("d") - 5, date("Y")));
+        $doc_type = ($incoming_only ? App::DOCUMENT_INCOMING : null);
+        $doc_type = ($incoming_only ? App::DOCUMENT_OUTGOING : $doc_type);
+
+        $doc_hash_ids = $app->searchDocuments(null, $fivedaysbefore, $now, $doc_type, $apikey);
+        if ($listdetails) {
+            $doc_details = array_map(function ($hashid) use ($app, $apikey) {
+                try {
+                    $details = $app->getDocData($hashid, $apikey);
+                } catch (Exception $ex) {
+                    return [
+                        'id' => $hashid,
+                        'error' => $ex->getCode()
+                    ];
+                }
+                return $details;
+            }, $doc_hash_ids);
+            echo "Λεπτομέρειες εγγράφων: ", PHP_EOL, print_r($doc_details, true), PHP_EOL;
+        } else {
+            echo "Λίστα εγγράφων: ", PHP_EOL, implode(PHP_EOL, $doc_hash_ids), PHP_EOL;
+        }
+    } catch (\Exception $e) {
+        echo 'ΛΑΘΟΣ: Αδυναμία ανάκτησης λίστας εγγράφων. ', PHP_EOL, $e->getMessage(), PHP_EOL;
+        exit(1);
+    }
+}
+
+/**
+ * Λειτουργία ανάκτησης πληροφοριών αρχείου με δεδομένο hash id $options['show']
+ */
+if ($show) {
+    try {
+        $doc_details = $app->getDocData($options['show'], $apikey);
+        echo "Λεπτομέρειες εγγράφου: ", PHP_EOL, print_r($doc_details, true), PHP_EOL;
+    } catch (\Exception $e) {
+        echo 'ΛΑΘΟΣ: Αδυναμία ανάκτησης λεπτομερειών εγγράφων. ', PHP_EOL, $e->getMessage(), PHP_EOL;
+        exit(1);
+    }
 }
 
 echo "Done.", PHP_EOL;

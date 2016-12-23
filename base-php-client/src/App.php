@@ -12,6 +12,11 @@ use Gr\Gov\Minedu\Osteam\Client;
 class App
 {
 
+    // Εισερχόμενο 
+    const DOCUMENT_INCOMING = 1;
+    // Εξερχόμενο 
+    const DOCUMENT_OUTGOING = 2;
+
     private $client = null;
     private $_settings = [];
     private $_debug = false;
@@ -34,31 +39,72 @@ class App
     }
 
     /**
+     * Λήψη κλειδιού πιστοποίησης.
      * 
      * @return string The api key 
-     * @throws \Swagger\Client\ApiException 
+     * @throws \Exception 
      */
     public function getApiKey()
     {
-        // debug?
-
         $payload = json_encode([
             'username' => $this->setting('username'),
             'password' => $this->setting('password')
         ]);
 
+        if ($this->_debug) {
+            echo "getApiKey :: payload: {$payload}", PHP_EOL;
+        }
+
         $response = json_decode($this->client->pauth($payload));
         return $response->apiKey;
     }
 
-    public function searchDocuments($apikey = null)
+    /**
+     * Αναζήτηση εγγράφων. 
+     * 
+     * @param int $sender_id Κωδικός αποστολέα, π.χ. 10000001
+     *      Η προκαθορισμένη τιμή του senderId προέρχεται από τα settings
+     * @param date $date_from Ημερομηνία αναζήτησης - Από
+     * @param date $date_to Ημερομηνία αναζήτησης - Έως
+     * @param int $doc_type Δείτε App::DOCUMENT_INCOMING, App::DOCUMENT_OUTGOING
+     * @param type $apikey Κλειδί αυθεντικόποίησης
+     * @return string[] Πίνακας με hashids
+     * @throws \Exception 
+     */
+    public function searchDocuments($sender_id = null, $date_from = null, $date_to = null, $doc_type = null, $apikey = null)
     {
-        
+        $payload = json_encode([
+            'senderId' => $sender_id === null ? $this->setting('sender_id') : null,
+            'docType' => $doc_type,
+            'startDate' => $date_from,
+            'endDate' => $date_to
+            ]
+        );
+
+        if ($this->_debug) {
+            echo "searchDocuments :: payload: {$payload}", PHP_EOL;
+        }
+
+        $response = json_decode($this->client->searchDocuments($payload, $apikey === null ? $this->getApiKey() : $apikey));
+        return $response;
     }
 
+    /**
+     * Ανάκτηση πληροφοριών εγγράφου.
+     * 
+     * @param type $hashid Το μοναδικό hashid του εγγράφου 
+     * @param type $apikey Κλειδί αυθεντικόποίησης
+     * @return string[] 
+     * @throws \Exception 
+     */
     public function getDocData($hashid, $apikey = null)
     {
-        
+        if ($this->_debug) {
+            echo "getDocData:: hash id: {$hashid}", PHP_EOL;
+        }
+
+        $response = json_decode($this->client->getDocData($hashid, $apikey === null ? $this->getApiKey() : $apikey), true);
+        return $response;
     }
 
     public function submit($submission_data, $apikey = null)
@@ -97,6 +143,7 @@ class App
     public function setDebug($debug = true)
     {
         $this->_debug = ($debug === true);
+        $this->client->setDebug($debug);
         return;
     }
 }
