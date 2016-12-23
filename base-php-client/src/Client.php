@@ -56,6 +56,17 @@ class Client
         return $result;
     }
 
+    public function getPdf($hashid, $apikey)
+    {
+        $result = $this->get("{$this->_settings['base_uri']}/document/pdf/{$hashid}", [], [
+            "api_key: {$apikey}",
+            "Content-Type: text/plain",
+            "Accept: application/json",
+            ]
+        );
+        return $result;
+    }
+
     protected function setCommonCurlOptions($ch, $uri, $headers)
     {
         curl_setopt($ch, CURLOPT_URL, $uri);

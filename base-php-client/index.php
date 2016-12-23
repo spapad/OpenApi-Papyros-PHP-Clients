@@ -130,5 +130,18 @@ if ($show) {
     }
 }
 
+/**
+ * Λειτουργία λήψης αρχείου με δεδομένο hash id $options['save'] ή $options['get']
+ */
+if ($get) {
+    if ($save) {
+        $doc_details = $app->savePdf($options['save'], $apikey);
+        echo "Λεπτομέρειες αποθήκευσης εγγράφου: ", PHP_EOL, print_r($doc_details, true), PHP_EOL;
+    } else {
+        $doc_details = $app->getPdf($options['get'], $apikey);
+        echo "Λεπτομέρειες εγγράφου: ", PHP_EOL, print_r($doc_details, true), PHP_EOL;
+    }
+}
+
 echo "Done.", PHP_EOL;
 exit(0);

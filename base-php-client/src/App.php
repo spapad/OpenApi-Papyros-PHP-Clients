@@ -114,12 +114,27 @@ class App
 
     public function getPdf($hashid, $apikey = null)
     {
-        
+        if ($this->_debug) {
+            echo "getPdf:: hash id: {$hashid}", PHP_EOL;
+        }
+
+        $response = json_decode($this->client->getPdf($hashid, $apikey === null ? $this->getApiKey() : $apikey), true);
+        return $response;
     }
 
     public function savePdf($hashid, $apikey = null)
     {
-        
+        if ($this->_debug) {
+            echo "savePdf:: hash id: {$hashid}", PHP_EOL;
+        }
+
+        $result = $this->getPdf($hashid, $apikey = null);
+        $save = file_put_contents($result["fileName"], base64_decode($result["document"]["base64"]));
+        return [
+            'file_name' => $result["fileName"],
+            'description' => $result["description"],
+            'save' => ($save ? 'Αποθηκεύτηκε' : 'ΔΕΝ αποθηκεύθηκε')
+        ];
     }
 
     /**
