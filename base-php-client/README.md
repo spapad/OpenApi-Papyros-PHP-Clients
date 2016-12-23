@@ -28,6 +28,39 @@ attach <file>: επισύναψη αρχείου στην καταχώρηση (
                στον τρέχοντα φάκελο και με το όνομα αρχείου που επιστρέφεται
 ```
 
+Το πρόγραμμα χρησιμοποιεί τη δοκιμαστική βιβλιοθήκη επίδειξης που αποτελείται 
+από δύο τμήματα [Gr\Gov\Minedu\Osteam\App](src/App.php) και 
+[Gr\Gov\Minedu\Osteam\Client](src/Client.php) 
+
+# Βιβλιοθήκη 
+
+>>>
+Η δοκιμαστική βιβλιοθήκη επίδειξης περιλαμβάνει παραδείγματα αξιοποίησης όλων 
+των REST API κλήσεων του [minedu OpenApi της ΠΑΠΥΡΟΣ](https://git.minedu.gov.gr/itminedu/minedu-OpenApi-PapyrosDrivers) 
+σε καμία περίπτωση όμως δεν αποτελεί πλήρως λειτουργική βιβλιοθήκη ή πλήρως
+λειτουργική εφαρμογή.
+>>>
+
+## Gr\Gov\Minedu\Osteam\App 
+
+Η κλάση [Gr\Gov\Minedu\Osteam\App](src/App.php) αποτελεί τη δοκιμαστική 
+βιβλιοθήκη επίδειξης η οποία καταναλώνει λειτουργίες του 
+[minedu OpenApi της ΠΑΠΥΡΟΣ](https://git.minedu.gov.gr/itminedu/minedu-OpenApi-PapyrosDrivers) 
+
+Οι βασικές λειτουργίες είναι: 
+
+* ...
+
+## Gr\Gov\Minedu\Osteam\Client 
+
+Η κλάση [Gr\Gov\Minedu\Osteam\Client](src/Client.php) αποτελεί τη δοκιμαστική 
+βιβλιοθήκη επίδειξης η οποία καταναλώνει λειτουργίες του 
+[minedu OpenApi της ΠΑΠΥΡΟΣ](https://git.minedu.gov.gr/itminedu/minedu-OpenApi-PapyrosDrivers) 
+
+Οι βασικές λειτουργίες είναι: 
+
+* ...
+
 ## Παραδείγματα κλήσης
 
 ### Λίστα εγγράφων 
