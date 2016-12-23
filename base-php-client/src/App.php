@@ -107,9 +107,20 @@ class App
         return $response;
     }
 
-    public function submit($submission_data, $apikey = null)
+    public function postProtocol($submission_data, $apikey = null)
     {
-        
+        $payload = json_encode(array_merge([
+            'senderId' => $this->setting('sender_id'),
+                ], $submission_data
+            )
+        );
+
+        if ($this->_debug) {
+            echo "postProtocol :: payload: {$payload}", PHP_EOL;
+        }
+
+        $response = json_decode($this->client->postProtocol($payload, $apikey === null ? $this->getApiKey() : $apikey), true);
+        return $response;
     }
 
     public function getPdf($hashid, $apikey = null)

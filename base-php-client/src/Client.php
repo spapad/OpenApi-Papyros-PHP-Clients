@@ -67,6 +67,17 @@ class Client
         return $result;
     }
 
+    public function postProtocol($payload, $apikey)
+    {
+        $result = $this->post("{$this->_settings['base_uri']}/protocol/submit", $payload, [
+            "api_key: {$apikey}",
+            "Content-Type: application/json",
+            "Accept: application/json",
+            ]
+        );
+        return $result;
+    }
+
     protected function setCommonCurlOptions($ch, $uri, $headers)
     {
         curl_setopt($ch, CURLOPT_URL, $uri);

@@ -83,6 +83,50 @@ try {
 }
 
 /**
+ * Αποστολή αρχείου για πρωτοκόλληση
+ */
+if ($send) {
+    echo "Αποστολή εγγράφου...", PHP_EOL;
+    echo "Έλεγχος για το αρχείο {$options['send']}... ";
+    if (is_readable($options['send'])) {
+        $file = base64_encode(file_get_contents($options['send']));
+        if ($file === false) {
+            echo PHP_EOL, "ΛΑΘΟΣ: Αδυναμία κωδικοποίησης του αρχείου.", PHP_EOL;
+        }
+        echo "OK", PHP_EOL;
+    } else {
+        echo PHP_EOL, "ΛΑΘΟΣ: Το αρχείο δεν είναι αναγνώσιμο.", PHP_EOL;
+        exit(-1);
+    }
+
+    try {
+        // καθορισμός παραμέτρων σε πίνακα για απλοποίηση 
+        $submission_data = [
+            'theme' => 'ΔΟΚΙΜΗ: Αυτοματοποιημένο κείμενο της ' . date('c'),
+            'description' => 'ΔΟΚΙΜΗ: Αυτοματοποιημένο κείμενο περιγραφής ' . date('Ymdhmi'),
+            'docCategory' => 20,
+            'mainDoc' => [
+                'document' => [
+                    "base64" => $file
+                ],
+                'fileName' => $options['send'],
+                'description' => "ΔΟΚΙΜΗ: Αποστολή δοκιμαστικού αρχείου {$options['send']}"
+            ]
+            // το παράδειγμα δεν περιλαμβάνει συνημμένα αρχεία 
+            // και ορισμένες επιπλέον παραμέτρους 
+            // senderId, senderProtocol, senderProtocolDate, ada, attachedDoc[]
+        ];
+
+        $doc_info = $app->postProtocol($submission_data, $apikey);
+        echo "Η αποστολή ολοκληρώθηκε με ΑΡ.Π.: ", $doc_info["protocolNumber"], PHP_EOL;
+        echo "Αναλυτικά: ", print_r($doc_info, true), PHP_EOL;
+    } catch (\Exception $e) {
+        echo 'ΛΑΘΟΣ: Αδυναμία αποστολής εγγράφου. ', PHP_EOL, $e->getMessage(), PHP_EOL;
+        exit(1);
+    }
+}
+
+/**
  * Λειτουργία λήψης λίστας των καταχωρημένων πρωτοκόλλων.
  * Εάν έχει ζητηθεί επιστρέφονται και οι αναλυτικές πληροφορίες των εγγράφων. 
  */
