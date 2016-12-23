@@ -20,6 +20,7 @@ class App
     private $client = null;
     private $_settings = [];
     private $_debug = false;
+    private $_files = [];
 
     /**
      * 
@@ -109,11 +110,26 @@ class App
 
     public function postProtocol($submission_data, $apikey = null)
     {
-        $payload = json_encode(array_merge([
+        $postdata = array_merge([
             'senderId' => $this->setting('sender_id'),
-                ], $submission_data
-            )
+            ], $submission_data
         );
+        // take care of files...
+        if (isset($postdata['mainDoc'])) {
+            if (is_string($postdata['mainDoc']['document'])) {
+                $postdata['mainDoc']['document'] = $this->_files[$postdata['mainDoc']['document']];
+            }
+        }
+        if (isset($postdata['attachedDoc'])) {
+            $postdata['attachedDoc'] = array_map(function ($doc) {
+                if (is_string($doc['document'])) {
+                    $doc['document'] = $this->_files[$doc['document']];
+                }
+                return $doc;
+            }, $postdata['attachedDoc']);
+        }
+
+        $payload = json_encode($postdata);
 
         if ($this->_debug) {
             echo "postProtocol :: payload: {$payload}", PHP_EOL;
@@ -149,21 +165,21 @@ class App
     }
 
     /**
-     * Try to return the object fields in a hash array
+     * Read a file to use later
      * 
-     * @param object $resultobj The object 
-     * @return type
+     * @param string $filename The file to read
+     * @return boolean
      */
-    public function apiResultObjAsArray($resultobj)
+    public function loadFile($filename)
     {
-        $result = [];
-        if (method_exists($resultobj, 'getters')) {
-            $getters = $resultobj->getters();
-            foreach ($getters as $property => $callfunc) {
-                $result[$property] = $resultobj->$callfunc();
+        if (is_readable($filename)) {
+            $file = base64_encode(file_get_contents($filename));
+            if ($file !== false) {
+                $this->_files["$filename"] = $file;
+                return true;
             }
         }
-        return $result;
+        return false;
     }
 
     public function setDebug($debug = true)

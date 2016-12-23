@@ -22,9 +22,10 @@ $settings = require(__DIR__ . '/settings.php');
  * i = incoming file type
  * o = outgoing file type
  */
-$options = getopt('vio', ['send:', 'list', 'listshow', 'show:', 'get:', 'save:']);
+$options = getopt('vio', ['send:', 'list', 'listshow', 'show:', 'get:', 'save:', 'attach:']);
 
 $send = isset($options['send']);
+$attach = $send && isset($options['attach']);
 $list = isset($options['list']) || isset($options['listshow']);
 $listdetails = isset($options['listshow']);
 $show = isset($options['show']);
@@ -32,6 +33,15 @@ $get = isset($options['get']) || isset($options['save']);
 $save = isset($options['save']);
 $incoming_only = isset($options['i']);
 $outgoing_only = isset($options['o']);
+
+if ($attach) {
+    $files = $options['attach'];
+    if (!is_array($files)) {
+        $files = [$files];
+    }
+} else {
+    $files = [];
+}
 
 /**
  * Αρχικοποίηση εφαρμογής 
@@ -43,31 +53,19 @@ $app->setDebug(isset($options['v']));
  * Έλεγχος παραμέτρων
  */
 if (!$send && !$list && !$show && !$get) {
-    echo "Χρήση: {$argv[0]} [-v] [--list] [--listshow] [-i|-o] [--send <file>] [--show <hashid>] [--get <hashid>] [--save <hashid>]", PHP_EOL,
+    echo "Χρήση: {$argv[0]} [-v] [--list] [--listshow] [-i|-o] [--send <file>] [--attach <file>] [--show <hashid>] [--get <hashid>] [--save <hashid>]", PHP_EOL,
     "            v: παραγωγή μηνυμάτων παρακολούθησης εκτέλεσης", PHP_EOL,
     "         list: λίστα hashids των εγγράφων (των τελευταίων 5 ημερών)", PHP_EOL,
     "     listshow: λίστα αρχείων (των τελευταίων 5 ημερών)", PHP_EOL,
     "            i: να συμπεριληφθούν μόνο τα εισερχόμενα στη λίστα αρχείων", PHP_EOL,
     "            ο: να συμπεριληφθούν μόνο τα εξερχόμενα στη λίστα αρχείων", PHP_EOL,
     "  send <file>: καταχώρηση πρωτοκόλλου με αποστολή του αρχείου file", PHP_EOL,
+    "attach <file>: επισύναψη αρχείου στην καταχώρηση (πολλαπλό)", PHP_EOL,
     "  show <hash>: αναλυτικές πληροφορίες αρχείου με δεδομένο hashid", PHP_EOL,
     "   get <hash>: λήψη  αρχείου με δεδομένο hashid", PHP_EOL,
     "  save <hash>: λήψη και αποθήκευση αρχείου με δεδομένο hashid", PHP_EOL,
     "               στον τρέχοντα φάκελο και με το όνομα αρχείου που επιστρέφεται", PHP_EOL,
     exit(0);
-}
-if ($send) {
-    echo "Έλεγχος για το αρχείο {$options['send']}... ";
-    if (is_readable($options['send'])) {
-        $file = base64_encode(file_get_contents($options['send']));
-        if ($file === false) {
-            echo PHP_EOL, "ΛΑΘΟΣ: Αδυναμία κωδικοποίησης του αρχείου.", PHP_EOL;
-        }
-        echo "OK", PHP_EOL;
-    } else {
-        echo PHP_EOL, "ΛΑΘΟΣ: Το αρχείο δεν είναι αναγνώσιμο.", PHP_EOL;
-        exit(-1);
-    }
 }
 
 /**
@@ -88,35 +86,57 @@ try {
 if ($send) {
     echo "Αποστολή εγγράφου...", PHP_EOL;
     echo "Έλεγχος για το αρχείο {$options['send']}... ";
-    if (is_readable($options['send'])) {
-        $file = base64_encode(file_get_contents($options['send']));
-        if ($file === false) {
-            echo PHP_EOL, "ΛΑΘΟΣ: Αδυναμία κωδικοποίησης του αρχείου.", PHP_EOL;
-        }
+    if ($app->loadFile($options['send'])) {
         echo "OK", PHP_EOL;
     } else {
         echo PHP_EOL, "ΛΑΘΟΣ: Το αρχείο δεν είναι αναγνώσιμο.", PHP_EOL;
         exit(-1);
     }
+    if ($attach) {
+        foreach ($files as $filename) {
+            echo "Έλεγχος για το συνημμένο αρχείο {$filename}... ";
+            if ($app->loadFile($filename)) {
+                echo "OK", PHP_EOL;
+            } else {
+                echo PHP_EOL, "ΛΑΘΟΣ: Το αρχείο δεν είναι αναγνώσιμο.", PHP_EOL;
+                exit(-1);
+            }
+        }
+    }
 
     try {
         // καθορισμός παραμέτρων σε πίνακα για απλοποίηση 
+        // το παράδειγμα δεν περιλαμβάνει συνημμένα αρχεία 
+        // και ορισμένες επιπλέον παραμέτρους 
+        // senderId, senderProtocol, senderProtocolDate, ada
         $submission_data = [
             'theme' => 'ΔΟΚΙΜΗ: Αυτοματοποιημένο κείμενο της ' . date('c'),
             'description' => 'ΔΟΚΙΜΗ: Αυτοματοποιημένο κείμενο περιγραφής ' . date('Ymdhmi'),
             'docCategory' => 20,
-            'mainDoc' => [
-                'document' => [
-                    "base64" => $file
-                ],
-                'fileName' => $options['send'],
-                'description' => "ΔΟΚΙΜΗ: Αποστολή δοκιμαστικού αρχείου {$options['send']}"
-            ]
-            // το παράδειγμα δεν περιλαμβάνει συνημμένα αρχεία 
-            // και ορισμένες επιπλέον παραμέτρους 
-            // senderId, senderProtocol, senderProtocolDate, ada, attachedDoc[]
         ];
-
+        // προσθήκη κυρίως αρχείου 
+        $submission_data['mainDoc'] = [
+            'document' => $options['send'],
+            // document: μπορεί να είναι
+            // string = αναφορά σε αρχείο που έχει ήδη φορτωθεί με την $app->loadFile()
+            // array = associative array me key "base64" και value το base64 encoding του περιεχομένου του αρχείου
+            'fileName' => $options['send'],
+            'description' => "ΔΟΚΙΜΗ: Αποστολή δοκιμαστικού αρχείου {$options['send']}"
+        ];
+        // προσθήκη συνημμένων 
+        if ($attach) {
+            $submission_data['attachedDoc'] = [];
+            foreach ($files as $filename) {
+                $submission_data['attachedDoc'][] = [
+                    'document' => $filename,
+                    // document: μπορεί να είναι
+                    // string = αναφορά σε αρχείο που έχει ήδη φορτωθεί με την $app->loadFile()
+                    // array = associative array me key "base64" και value το base64 encoding του περιεχομένου του αρχείου
+                    'fileName' => $filename,
+                    'description' => "ΔΟΚΙΜΗ: Αποστολή συνημμένου δοκιμαστικού αρχείου {$filename}"
+                ];
+            }
+        }
         $doc_info = $app->postProtocol($submission_data, $apikey);
         echo "Η αποστολή ολοκληρώθηκε με ΑΡ.Π.: ", $doc_info["protocolNumber"], PHP_EOL;
         echo "Αναλυτικά: ", print_r($doc_info, true), PHP_EOL;
