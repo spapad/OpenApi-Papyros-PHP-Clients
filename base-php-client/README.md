@@ -43,25 +43,70 @@ attach <file>: επισύναψη αρχείου στην καταχώρηση (
 
 ## Gr\Gov\Minedu\Osteam\App 
 
-Η κλάση [Gr\Gov\Minedu\Osteam\App](src/App.php) αποτελεί τη δοκιμαστική 
-βιβλιοθήκη επίδειξης η οποία καταναλώνει λειτουργίες του 
-[minedu OpenApi της ΠΑΠΥΡΟΣ](https://git.minedu.gov.gr/itminedu/minedu-OpenApi-PapyrosDrivers) 
+Η κλάση [Gr\Gov\Minedu\Osteam\App](src/App.php) παρέχει μεθόδους διευκόλυνσης 
+για τον προγραμματιστή ώστε να μπορεί εύκολα να καταναλώσει λειτουργίες που
+αφορούν την πρωτοκόλληση εγγράφων. Οι βασικές λειτουργίες είναι: 
 
-Οι βασικές λειτουργίες είναι: 
+* getApiKey()
+* searchDocuments($sender_id = null, $date_from = null, $date_to = null, $doc_type = null, $apikey = null)
+* getDocData($hashid, $apikey = null)
+* postProtocol($submission_data, $apikey = null)
+* getPdf($hashid, $apikey = null)
+* savePdf($hashid, $apikey = null)
 
-* ...
+**Τεκμηρίωση παρέχεται εντός του [Gr\Gov\Minedu\Osteam\App](src/App.php)**
 
 ## Gr\Gov\Minedu\Osteam\Client 
 
-Η κλάση [Gr\Gov\Minedu\Osteam\Client](src/Client.php) αποτελεί τη δοκιμαστική 
-βιβλιοθήκη επίδειξης η οποία καταναλώνει λειτουργίες του 
+Η κλάση [Gr\Gov\Minedu\Osteam\Client](src/Client.php) καταναλώνει λειτουργίες του 
 [minedu OpenApi της ΠΑΠΥΡΟΣ](https://git.minedu.gov.gr/itminedu/minedu-OpenApi-PapyrosDrivers) 
+αξιοποιώντας τη βιβλιοθήκη CURL. Παρέχει μεθόδους αφαίρεσης για κατανάλωση των
+λειτουργιών που αφορούν την πρωτοκόλληση εγγράφων καθώς και βασικές μεθόδους
+κλήσης GET, PUT, POST. Οι βασικές λειτουργίες είναι: 
 
-Οι βασικές λειτουργίες είναι: 
-
-* ...
+* pauth($payload)
+* searchDocuments($payload, $apikey)
+* getDocData($hashid, $apikey)
+* getPdf($hashid, $apikey)
+* postProtocol($payload, $apikey)
+* _put($uri, $payload, $headers = [])_
+* _post($uri, $payload, $headers = [])_
+* _get($uri, $params = [], $headers = [])_
 
 ## Παραδείγματα κλήσης
+
+### Πρωτοκόλληση εγγράφου 
+
+**Με συνημμένο αρχείο**
+
+```sh
+$ php index.php --send /tmp/test-file2.pdf --attach /tmp/test-file.pdf 
+Ανάκτηση API key...
+Το API key είναι: eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxMDAwMDAwIn0.-5lgafnO-ACRSchNQQhUpx8RfuZnGQtvF9-eIl9EJsY
+Αποστολή εγγράφου...
+Έλεγχος για το αρχείο /tmp/test-file2.pdf... OK
+Έλεγχος για το συνημμένο αρχείο /tmp/test-file.pdf... OK
+Η αποστολή ολοκληρώθηκε με ΑΡ.Π.: 180042
+Αναλυτικά: Array
+(
+    [docId] => rSOTUDYNkHWBDktlAP31Hg%3D%3D
+    [protocolYear] => 2016
+    [protocolDate] => 23/12/2016
+    [protocolNumber] => 180042
+    [attachments] => Array
+        (
+            [0] => Array
+                (
+                    [docId] => 7Kv7cp7J5fQRXyw7R1mEGQ%3D%3D
+                    [description] => 
+                )
+
+        )
+
+)
+
+Done.
+```
 
 ### Λίστα εγγράφων 
 
@@ -198,39 +243,6 @@ IFFnDJWBuWhtpQhvlzPyMQ%3D%3D
 K7ga1NQ2wONXb3364Q9Elg%3D%3D
 OblOuYKCQEdnwH1PFBstxA%3D%3D
 rSOTUDYNkHWBDktlAP31Hg%3D%3D
-Done.
-```
-
-### Πρωτοκόλληση εγγράφου 
-
-**Με συνημμένο αρχείο**
-
-```sh
-$ php index.php --send /tmp/test-file2.pdf --attach /tmp/test-file.pdf 
-Ανάκτηση API key...
-Το API key είναι: eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxMDAwMDAwIn0.-5lgafnO-ACRSchNQQhUpx8RfuZnGQtvF9-eIl9EJsY
-Αποστολή εγγράφου...
-Έλεγχος για το αρχείο /tmp/test-file2.pdf... OK
-Έλεγχος για το συνημμένο αρχείο /tmp/test-file.pdf... OK
-Η αποστολή ολοκληρώθηκε με ΑΡ.Π.: 180042
-Αναλυτικά: Array
-(
-    [docId] => rSOTUDYNkHWBDktlAP31Hg%3D%3D
-    [protocolYear] => 2016
-    [protocolDate] => 23/12/2016
-    [protocolNumber] => 180042
-    [attachments] => Array
-        (
-            [0] => Array
-                (
-                    [docId] => 7Kv7cp7J5fQRXyw7R1mEGQ%3D%3D
-                    [description] => 
-                )
-
-        )
-
-)
-
 Done.
 ```
 
