@@ -1,8 +1,10 @@
 <?php
+
 /*
  * 
  */
-namespace Gr\Gov\Minedu\Osteam;
+
+namespace Gr\Gov\Minedu\Osteam\Slim;
 
 use Exception;
 
@@ -29,7 +31,7 @@ class Client
         $result = $this->put("{$this->_settings['base_uri']}/pauthenticate/pauth", $payload, [
             "Content-Type: application/json",
             "Accept: application/json",
-            ]
+                ]
         );
         return $result;
     }
@@ -40,7 +42,7 @@ class Client
             "api_key: {$apikey}",
             "Content-Type: application/json",
             "Accept: application/json",
-            ]
+                ]
         );
         return $result;
     }
@@ -51,7 +53,7 @@ class Client
             "api_key: {$apikey}",
             "Content-Type: text/plain",
             "Accept: application/json",
-            ]
+                ]
         );
         return $result;
     }
@@ -62,7 +64,7 @@ class Client
             "api_key: {$apikey}",
             "Content-Type: text/plain",
             "Accept: application/json",
-            ]
+                ]
         );
         return $result;
     }
@@ -73,7 +75,7 @@ class Client
             "api_key: {$apikey}",
             "Content-Type: application/json",
             "Accept: application/json",
-            ]
+                ]
         );
         return $result;
     }
@@ -83,6 +85,9 @@ class Client
         curl_setopt($ch, CURLOPT_URL, $uri);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_USERAGENT, "OSTEAM barebone php client");
+        if (isset($this->_settings['NO_SAFE_CURL']) && $this->_settings['NO_SAFE_CURL'] === true) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
 
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
@@ -109,7 +114,7 @@ class Client
             throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: " . var_export(curl_getinfo($ch), true));
         }
 //        if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
-            // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
+        // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
 //            throw new Exception("Αποτυχημένη κλήση. HTTP STATUS {$http_code}. Η απάντηση ήταν: {$result}", $http_code);
 //        }
         curl_close($ch);
@@ -132,7 +137,7 @@ class Client
             throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
         }
 //        if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
-            // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
+        // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
 //            throw new Exception("Αποτυχημένη κλήση. HTTP STATUS {$http_code}. Η απάντηση ήταν: {$result}", $http_code);
 //        }
         curl_close($ch);
@@ -159,7 +164,7 @@ class Client
             throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
         }
 //        if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
-            // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
+        // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
 //            throw new Exception("Αποτυχημένη κλήση. HTTP STATUS {$http_code}. Η απάντηση ήταν: {$result}", $http_code);
 //        }
         curl_close($ch);
@@ -171,4 +176,5 @@ class Client
         $this->_debug = ($debug === true);
         return;
     }
+
 }

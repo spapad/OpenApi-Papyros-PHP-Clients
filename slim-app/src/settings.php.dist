@@ -20,6 +20,7 @@ return [
         'username' => 'test',
         'password' => '123456',
         // sender id for test lookups 
-        'sender_id' => 100000001
+        'sender_id' => 100000001,
+        'NO_SAFE_CURL' => false
     ],
 ];

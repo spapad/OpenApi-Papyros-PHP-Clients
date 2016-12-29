@@ -106,7 +106,7 @@ class Client
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: " . var_export(curl_getinfo($ch), true));
         }
         if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
             // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
@@ -129,7 +129,7 @@ class Client
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: " . var_export(curl_getinfo($ch), true));
         }
         if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
             // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"
@@ -156,7 +156,7 @@ class Client
         $result = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: ", var_export(curl_getinfo($ch), true));
+            throw new Exception("Λάθος κατά την κλήση του {$uri}. Curl error: " . curl_error($ch) . " Curl info: " . var_export(curl_getinfo($ch), true));
         }
         if (intval(($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) / 100) != 2) {
             // πραγματοποιήθηκε κλήση αλλά δεν ήταν "επιτυχής"

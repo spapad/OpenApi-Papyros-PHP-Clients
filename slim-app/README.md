@@ -21,31 +21,25 @@ http://generic.local.dev/public/pdf/Q%2BnehDdzn91TSuVrWOWtoQ%3D%3D/eyJhbGciOiJIU
 http://generic.local.dev/public/pdf/download/Q%2BnehDdzn91TSuVrWOWtoQ%3D%3D
 
 
+Αποστολή αρχείου για πρωτοκόλληση 
 
-# Slim Framework 3 Skeleton Application
 
-Use this skeleton application to quickly setup and start working on a new Slim Framework 3 application. This application uses the latest Slim 3 with the PHP-View template renderer. It also uses the Monolog logger.
+```sh
+#!/bin/sh 
 
-This skeleton application was built for Composer. This makes setting up a new Slim Framework application quick and easy.
+curl -v -X POST \
+	--header "User-Agent: MINEDU OSTEAM Tester" \
+    -F "theme=Title" \
+    -F "mainDoc=@test3-minimal.pdf" \
+    -F "otherDoc=@test3-minimal.pdf" \
+	"http://localhost/devel/OpenApi-Papyros-PHP-Clients/slim-app/public/protocol"
+```
 
-## Install the Application
+# Σχετικά με την εφαρμογή
 
-Run this command from the directory in which you want to install your new Slim Framework application.
+Η εφαρμογή δημιουργήθηκε με σημείο εκκίνησης το Slim Framework 3 Skeleton Application.
+Περισσότερες λεπτομέρειες στη [σελίδα του Slim-Skeleton](https://github.com/slimphp/Slim-Skeleton)
 
-    php composer.phar create-project slim/slim-skeleton [my-app-name]
-https://github.com/slimphp/Slim-Skeleton
-
-Replace `[my-app-name]` with the desired directory name for your new application. You'll want to:
-
-* Point your virtual host document root to your new application's `public/` directory.
-* Ensure `logs/` is web writeable.
-
-To run the application in development, you can also run this command. 
-
-	php composer.phar start
-
-Run this command to run the test suite
-
-	php composer.phar test
-
-That's it! Now go build something cool.
+**Σημαντικό!** Για να τρέξει η εφαρμογή είναι απαραίτητο μετά τη λήψη της
+να εκτελέσετε την εντολή `composer install` μέσα στο ριζικό της φάκελο
+(\slim-app).

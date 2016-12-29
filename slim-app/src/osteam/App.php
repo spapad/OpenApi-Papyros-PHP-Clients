@@ -1,10 +1,10 @@
 <?php
-//
-namespace Gr\Gov\Minedu\Osteam;
+
+namespace Gr\Gov\Minedu\Osteam\Slim;
 
 use Interop\Container\ContainerInterface;
 use Slim\Http\Body;
-use Gr\Gov\Minedu\Osteam\Client;
+use Gr\Gov\Minedu\Osteam\Slim\Client;
 
 /**
  * Description of app
@@ -35,7 +35,10 @@ class App
         $this->username = (isset($settings['username']) ? $settings['username'] : '');
         $this->password = (isset($settings['password']) ? $settings['password'] : '');
         $this->sender_id = (isset($settings['sender_id']) ? $settings['sender_id'] : '');
-        $this->client = new Client();
+        $this->client = new Client([
+            'NO_SAFE_CURL' => (isset($settings['NO_SAFE_CURL']) ? $settings['NO_SAFE_CURL'] : false),
+            'base_uri' => (isset($settings['base_uri']) ? $settings['base_uri'] : 'https://protocoltest.minedu.gov.gr:443/openpapyros/api')
+        ]);
     }
 
     /**
@@ -66,8 +69,8 @@ class App
     public function ping($req, $res, $args)
     {
         return $res->withJson([
-                'username' => $this->username,
-                'sender_id' => $this->sender_id,
+                    'username' => $this->username,
+                    'sender_id' => $this->sender_id,
         ]);
     }
 
@@ -155,11 +158,11 @@ class App
             'docType' => "$doc_type",
             'startDate' => $req->getQueryParam('date_from', date(DATE_W3C, mktime(0, 0, 0, date("m"), date("d") - 5, date("Y")))),
             'endDate' => $req->getQueryParam('date_to', date(DATE_W3C)),
-            ]
+                ]
         );
 
         return $res->withJson([
-                'hashIds' => json_decode($this->client->searchDocuments($payload, $apikey))
+                    'hashIds' => json_decode($this->client->searchDocuments($payload, $apikey))
         ]);
     }
 
@@ -197,62 +200,55 @@ class App
         $res = $res->withBody(new Body(fopen('php://temp', 'r+')));
         $res->getBody()->write(base64_decode($result["document"]["base64"]));
         return $res
-                ->withHeader('Content-Description', 'Get file ' . filter_var($result["description"], FILTER_SANITIZE_STRING))
-                ->withHeader('Content-Type', 'application/pdf')
-                ->withHeader('Content-Disposition', 'attachment;filename="' . basename($result["fileName"]) . '"')
-                ->withHeader('Content-Transfer-Encoding', 'binary')
-                ->withHeader('Expires', '0')
-                ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
-                ->withHeader('Pragma', 'public');
+                        ->withHeader('Content-Description', 'Get file ' . filter_var($result["description"], FILTER_SANITIZE_STRING))
+                        ->withHeader('Content-Type', 'application/pdf')
+                        ->withHeader('Content-Disposition', 'attachment;filename="' . basename($result["fileName"]) . '"')
+                        ->withHeader('Content-Transfer-Encoding', 'binary')
+                        ->withHeader('Expires', '0')
+                        ->withHeader('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                        ->withHeader('Pragma', 'public');
     }
 
-    /////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////
-
-    public function postProtocol($submission_data, $apikey = null)
+    public function postProtocol($req, $res, $args)
     {
-        $postdata = array_merge([
-            'senderId' => $this->setting('sender_id'),
-            ], $submission_data
-        );
-        // take care of files...
-        if (isset($postdata['mainDoc'])) {
-            if (is_string($postdata['mainDoc']['document'])) {
-                $postdata['mainDoc']['document'] = $this->_files[$postdata['mainDoc']['document']];
-            }
-        }
-        if (isset($postdata['attachedDoc'])) {
-            $postdata['attachedDoc'] = array_map(function ($doc) {
-                if (is_string($doc['document'])) {
-                    $doc['document'] = $this->_files[$doc['document']];
+        $apikey = (isset($args['apikey']) ? $args['apikey'] : $this->getApiKey());
+
+        $params = $req->getParams();
+        $files = $req->getUploadedFiles();
+        $mainDoc = null;
+        $attachedDocs = [];
+        if (count($files) > 0) {
+            foreach ($files as $id => $file) {
+                if ($file->getError() === UPLOAD_ERR_OK) {
+                    $file_contents = base64_encode($file->getStream()->getContents());
+                    if ($file_contents !== false) {
+                        $payload_item = [
+                            'document' => $file_contents,
+                            'fileName' => $file->getClientFilename(),
+                            'description' => null
+                        ];
+                        if ($id === 'mainDoc') {
+                            $mainDoc = $payload_item;
+                        } else {
+                            $attachedDocs[] = $payload_item;
+                        }
+                    }
                 }
-                return $doc;
-            }, $postdata['attachedDoc']);
-        }
-
-        $payload = json_encode($postdata);
-
-        $response = json_decode($this->client->postProtocol($payload, $apikey === null ? $this->getApiKey() : $apikey), true);
-        return $response;
-    }
-
-    /**
-     * Read a file to use later
-     * 
-     * @param string $filename The file to read
-     * @return boolean
-     */
-    public function loadFile($filename)
-    {
-        if (is_readable($filename)) {
-            $file = base64_encode(file_get_contents($filename));
-            if ($file !== false) {
-                $this->_files["$filename"] = $file;
-                return true;
             }
         }
-        return false;
+
+        $payload_items = [
+            'senderId' => $req->getParam('sender_id', $this->sender_id),
+            'theme' => $req->getParam('theme'),
+            'description' => $req->getParam('description'),
+            'docCategory' => $req->getParam('docCategory', 20),
+            'mainDoc' => $mainDoc,
+            'attachedDoc' => (count($attachedDocs) > 0 ? $attachedDocs : null)
+        ];
+
+        $payload = json_encode($payload_items);
+
+        return $this->withJsonReady($res, $this->client->postProtocol($payload, $apikey));
     }
 
     public function setDebug($debug = true)
@@ -260,4 +256,5 @@ class App
         $this->client->setDebug($debug === true);
         return;
     }
+
 }

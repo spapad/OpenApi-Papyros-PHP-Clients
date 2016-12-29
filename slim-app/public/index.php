@@ -31,7 +31,7 @@ require __DIR__ . '/../src/middleware.php';
 // setup the app 
 //
 $container['autoloader'] = $autoloader;
-$autoloader->addPsr4('Gr\\Gov\\Minedu\\Osteam\\', __DIR__ . '/../src/osteam');
+$autoloader->addPsr4('Gr\Gov\Minedu\Osteam\Slim\\', __DIR__ . '/../src/osteam');
 $container['errorHandler'] = function ($c) {
     return function ($request, $response, $exception) use ($c) {
         return $c['response']->withJson([
