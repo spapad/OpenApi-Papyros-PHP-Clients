@@ -1,6 +1,6 @@
 <?php
 
-$app->get('/ping', '\Gr\Gov\Minedu\Osteam\Slim\App:ping');
+$app->get('/defaults', '\Gr\Gov\Minedu\Osteam\Slim\App:defaults');
 $app->get('/apikey', '\Gr\Gov\Minedu\Osteam\Slim\App:apiKey');
 $app->get('/docdata/{hashid}[/{apikey}]', '\Gr\Gov\Minedu\Osteam\Slim\App:docData');
 $app->get('/search[/{doc_type}]', '\Gr\Gov\Minedu\Osteam\Slim\App:searchDocuments');

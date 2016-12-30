@@ -23,6 +23,7 @@ class App
 
     protected $ci = null;
     protected $client = null;
+    protected $logger = null;
     private $username = '';
     private $password = '';
     private $sender_id = -1;
@@ -39,6 +40,9 @@ class App
             'NO_SAFE_CURL' => (isset($settings['NO_SAFE_CURL']) ? $settings['NO_SAFE_CURL'] : false),
             'base_uri' => (isset($settings['base_uri']) ? $settings['base_uri'] : 'https://protocoltest.minedu.gov.gr:443/openpapyros/api')
         ]);
+        if (($logger = $this->ci->get('logger')) != null) {
+            $this->logger = $logger;
+        }
     }
 
     /**
@@ -61,12 +65,22 @@ class App
         return $jsonResponse;
     }
 
-    protected function setting($name)
+    protected function log($msg)
     {
-        throw new \Exception("Not implemented");
+        if ($this->logger) {
+            $this->logger->info($msg);
+        }
     }
 
-    public function ping($req, $res, $args)
+    /**
+     * Provide information about default values used in app.
+     * 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
+     * @param array $args
+     * @return Response
+     */
+    public function defaults($req, $res, $args)
     {
         return $res->withJson([
                     'username' => $this->username,
@@ -94,7 +108,10 @@ class App
     /**
      * Λήψη κλειδιού πιστοποίησης.
      * 
-     * @throws \Exception 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
+     * @param array $args
+     * @return Response
      */
     public function apiKey($req, $res, $args)
     {
@@ -109,10 +126,13 @@ class App
     /**
      * Ανάκτηση πληροφοριών εγγράφου.
      * 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
      * @param string[] $args Πίνακας με παραμέτρους από το call:
      *      'hashid' Το μοναδικό hashid του εγγράφου 
      *      'apikey' (προεραιτικό) Κλειδί αυθεντικοποίησης
      * @throws \Exception 
+     * @return Response
      */
     public function docData($req, $res, $args)
     {
@@ -135,11 +155,14 @@ class App
      *      'date_to' (προεραιτικό) Ημερομηνία αναζήτησης - Έως σε μορφή DATE_W3C
      *          κατά προτίμηση (μπορεί να είναι και YYYY-MM-DD ή άλλο)
      *          Η προκαθορισμένη τιμή είναι η χρονική στιγμή της κλήσης
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
      * @param string[] $args Πίνακας με παραμέτρους από το call:
      *      'doc_type' (προεραιτικό) Δείτε App::DOCUMENT_INCOMING, App::DOCUMENT_OUTGOING
      *          App::DOCUMENT_INCOMING_STR, App::DOCUMENT_OUTGOING_STR
      *      'apikey' (προεραιτικό) Κλειδί αυθεντικοποίησης
      * @throws \Exception 
+     * @return Response
      */
     public function searchDocuments($req, $res, $args)
     {
@@ -151,7 +174,7 @@ class App
                 $doc_type = self::DOCUMENT_OUTGOING;
             }
         }
-        $apikey = (isset($args['apikey']) ? $args['apikey'] : $this->getApiKey());
+        $apikey = $req->getQueryParam('apikey', $this->getApiKey());
 
         $payload = json_encode([
             'senderId' => $req->getQueryParam('sender_id', $this->sender_id),
@@ -169,10 +192,13 @@ class App
     /**
      * Λήψη πληροφοριών αρχείου 
      * 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
      * @param string[] $args Πίνακας με παραμέτρους από το call:
      *      'hashid' Το μοναδικό hashid του εγγράφου 
      *      'apikey' (προεραιτικό) Κλειδί αυθεντικοποίησης
      * @throws \Exception 
+     * @return Response
      */
     public function pdfData($req, $res, $args)
     {
@@ -185,10 +211,13 @@ class App
     /**
      * Λήψη - μεταφόρτωση αρχείου 
      * 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
      * @param string[] $args Πίνακας με παραμέτρους από το call:
      *      'hashid' Το μοναδικό hashid του εγγράφου 
      *      'apikey' (προεραιτικό) Κλειδί αυθεντικοποίησης
      * @throws \Exception 
+     * @return Response
      */
     public function pdfDownload($req, $res, $args)
     {
@@ -209,6 +238,14 @@ class App
                         ->withHeader('Pragma', 'public');
     }
 
+    /**
+     * Αποστολή αρχείου/ων και λήψη πρωτοκόλλου.
+     * 
+     * @param Psr\Http\Message\ServerRequestInterface $req
+     * @param Psr\Http\Message\ResponseInterface $res
+     * @param array $args
+     * @return Response
+     */
     public function postProtocol($req, $res, $args)
     {
         $apikey = (isset($args['apikey']) ? $args['apikey'] : $this->getApiKey());
@@ -244,6 +281,7 @@ class App
             'docCategory' => $req->getParam('docCategory', 20),
             'mainDoc' => $mainDoc,
             'attachedDoc' => (count($attachedDocs) > 0 ? $attachedDocs : null)
+            // αντίστοιχα εδώ μπορούν να προστεθούν και όλες οι υπόλοιπες παράμετροι, π.χ. ADA
         ];
 
         $payload = json_encode($payload_items);
