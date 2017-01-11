@@ -37,7 +37,7 @@ $container['errorHandler'] = function ($c) {
         return $c['response']->withJson([
                 'message' => 'Προέκυψε λάθος',
                 'in' => $exception->getMessage()
-                ], $exception->getCode()
+                ], intval($code = $exception->getCode()) > 0 ? $code : null
         );
     };
 };
